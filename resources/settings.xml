@@ -1,0 +1,7 @@
+﻿<settings>
+  <category label="30000">
+    <setting id="username" type="text" label="Tunnus" default=""/>
+    <setting id="password" type="text" label="Salasana" option="hidden" default=""/>
+    <setting id="reset_credentials" type="action" label="Nollaa" action="RunPlugin(plugin://plugin.video.katsomo/?setting=reset_credentials)"/>
+  </category>
+</settings>
