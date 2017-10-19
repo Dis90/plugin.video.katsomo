@@ -192,7 +192,7 @@ class Katsomo(object):
 
     def get_stream(self, video_id):
         stream = {}
-        allowed_formats = ['ismusp', 'mpd']
+        allowed_formats = ['ism','ismusp', 'mpd']
         url = 'https://api.katsomo.fi/api/web/asset/{0}/play.json'.format(video_id)
         params = {'protocol': 'MPD'}
         data_dict = json.loads(self.make_request(url, 'get', params=params, headers=None))['playback']
