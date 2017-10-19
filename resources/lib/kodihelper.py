@@ -148,7 +148,7 @@ class KodiHelper(object):
 
         if stream['drm_protected']:
             playitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
-        playitem.setProperty('inputstream.adaptive.license_key', stream['license_url'] + '||R{SSM}|')
+            playitem.setProperty('inputstream.adaptive.license_key', stream['license_url'] + '||R{SSM}|')
         xbmcplugin.setResolvedUrl(self.handle, True, listitem=playitem)
 
     def get_as_bool(self, string):
