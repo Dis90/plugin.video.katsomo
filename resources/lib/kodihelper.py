@@ -76,7 +76,7 @@ class KodiHelper(object):
             return None
 
     def check_for_prerequisites(self):
-        if self.set_login_credentials() and self.check_for_credentials():
+        if self.set_login_credentials():
             return True
         else:
             return False
@@ -92,18 +92,12 @@ class KodiHelper(object):
         else:
             return True
 
-    def check_for_credentials(self):
-        if not self.k.get_credentials():
-            self.login_process()
-        return True
-
     def login_process(self):
         username = self.get_setting('username')
         password = self.get_setting('password')
         self.k.login(username, password)
 
     def reset_credentials(self):
-        self.k.reset_credentials()
         self.set_setting('username', '')
         self.set_setting('password', '')
 
@@ -150,9 +144,3 @@ class KodiHelper(object):
             playitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
             playitem.setProperty('inputstream.adaptive.license_key', stream['license_url'] + '||R{SSM}|')
         xbmcplugin.setResolvedUrl(self.handle, True, listitem=playitem)
-
-    def get_as_bool(self, string):
-        if string == 'true':
-            return True
-        else:
-            return False

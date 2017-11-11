@@ -86,7 +86,6 @@ def list_subcats(program_id, subcats):
             helper.add_item(title, params)
     helper.eod()
 
-
 def list_videos(program_id=None, subcat_id=None, search_query=None, series_data=None):
     if program_id or subcat_id:
         videos_data = helper.k.get_videos(program_id, subcat_id)
@@ -156,7 +155,6 @@ def search():
         helper.log('No search query provided.')
         return False
 
-
 def router(paramstring):
     """
     Router function that calls other functions
@@ -190,15 +188,18 @@ def router(paramstring):
         elif params['action'] == 'play':
             # Play a video from a provided URL.
             helper.play_item(params['video_id'])
-
         elif params['action'] == 'search':
             search()
     else:
         if helper.check_for_prerequisites():
-            # If the plugin is called from Kodi UI without any parameters,
-            # display the list of video categories
-            list_pages()
-
+            try:
+                helper.login_process() # Have to trigger login process every time to get new cookie
+                # If the plugin is called from Kodi UI without any parameters,
+                # display the list of video categories
+                list_pages()
+            except helper.k.KatsomoError as error:
+                if error.value == 'AUTHENTICATION_FAILED':
+                    helper.dialog('ok', 'Error', error.value)
 
 if __name__ == '__main__':
     # Call the router function and pass the plugin call parameters to it.

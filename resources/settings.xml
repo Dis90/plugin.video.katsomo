@@ -2,6 +2,6 @@
   <category label="Tunnus">
     <setting id="username" type="text" label="Tunnus" default=""/>
     <setting id="password" type="text" label="Salasana" option="hidden" default=""/>
-    <setting id="reset_credentials" type="action" label="Kirjaudu ulos" action="RunPlugin(plugin://plugin.video.katsomo/?setting=reset_credentials)"/>
+    <setting id="reset_credentials" type="action" label="Nollaa käyttäjätiedot" action="RunPlugin(plugin://plugin.video.katsomo/?setting=reset_credentials)"/>
   </category>
 </settings>

@@ -19,7 +19,6 @@ class Katsomo(object):
         self.http_session = requests.Session()
         self.settings_folder = settings_folder
         self.cookie_jar = cookielib.LWPCookieJar(os.path.join(self.settings_folder, 'cookie_file'))
-        self.credentials_file = os.path.join(settings_folder, 'credentials')
         try:
             self.cookie_jar.load(ignore_discard=True, ignore_expires=True)
         except IOError:
@@ -74,65 +73,37 @@ class Katsomo(object):
 
     def raise_katsomo_error(self, response):
         try:
-            error = json.loads(response)['error']
+            error = json.loads(response)
             if isinstance(error, dict):
-                if 'message' in error.keys():
-                    raise self.KatsomoError(error['message'])
-                elif 'code' in error.keys():
-                    raise self.KatsomoError(error['code'])
+                if 'error' in error.keys():
+                    if 'message' in error['error'].keys():
+                        raise self.KatsomoError(error['error']['message'])
+                    elif 'code' in error['error'].keys():
+                        raise self.KatsomoError(error['error']['code'])
+                if 'response' in error.keys(): # Response is not always error but we need this to check if login is OK
+                    if error['response']['code'] == 'AUTHENTICATION_FAILED':
+                        raise self.KatsomoError(error['response']['code'])
             elif isinstance(error, str):
                 raise self.KatsomoError(error)
 
-            raise self.KatsomoError('Error')  # generic error message
+            #raise self.KatsomoError('Error')  # generic error message
 
         except KeyError:
             pass
         except ValueError:  # when response is not in json
             pass
 
-    def save_credentials(self, credentials):
-        credentials_dict = json.loads(credentials)
-
-        if self.get_credentials().get('remember_me'):
-            credentials_dict['remember_me'] = {}
-            credentials_dict['remember_me']['token'] = self.get_credentials()['remember_me']['token']  # resave token
-        with open(self.credentials_file, 'w') as fh_credentials:
-            fh_credentials.write(json.dumps(credentials_dict))
-
-    def reset_credentials(self):
-        credentials = {}
-        with open(self.credentials_file, 'w') as fh_credentials:
-            fh_credentials.write(json.dumps(credentials))
-
-    def get_credentials(self):
-        try:
-            with open(self.credentials_file, 'r') as fh_credentials:
-                credentials_dict = json.loads(fh_credentials.read())
-                return credentials_dict
-        except IOError:
-            self.reset_credentials()
-            with open(self.credentials_file, 'r') as fh_credentials:
-                return json.loads(fh_credentials.read())
-
     def login(self, username=None, password=None):
         url = 'https://api.katsomo.fi/api/authentication/user/login.json'
 
-        if self.get_credentials().get('remember_me'):  # TODO: find out when token expires
-            method = 'put'
-            payload = {
-                'remember_me': self.get_credentials()['remember_me']['token']
-            }
-        else:
-            method = 'post'
-            payload = {
-                'username': username,
-                'password': password,
-                'rememberMe': 'true'
-            }
+        method = 'post'
+        payload = {
+            'username': username,
+            'password': password,
+            'rememberMe': 'true'
+        }
 
-
-        credentials = self.make_request(url, method, payload=payload) 
-        self.save_credentials(credentials)
+        return self.make_request(url, method, payload=payload)
 
     def get_search_data(self, query):
         url = 'https://api.katsomo.fi/api/web/search/categories/33/assets.json'
