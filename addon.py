@@ -112,15 +112,13 @@ def list_videos(program_id=None, subcat_id=None, search_query=None, series_data=
             'aired': i.get('liveBroadcastTime')
         }
 
-        if search_query:
-            episode_art = {
-                'thumb': i['imageVersions']['image']['url']
-            }
-        else:
-            episode_art = {
-                'fanart': helper.k.get_program_fanart(program_id),
-                'thumb': i['imageVersions']['image']['url']
-            }
+        fanart_image = helper.k.get_program_fanart(program_id) if not search_query else None
+        thumb_image = i['imageVersions']['image']['url'] if i['imageVersions'] else None
+
+        episode_art = {
+            'fanart': fanart_image,
+            'thumb': thumb_image
+        }
 
         helper.add_item(i.get('subtitle'), params=params, info=episode_info, art=episode_art, content='episodes', playable=True)
     helper.eod()
