@@ -11,7 +11,7 @@ handle = int(sys.argv[1])
 helper = KodiHelper(base_url, handle)
 
 def list_pages():
-    helper.add_item('Kaikki ohjelmat', params={'action': 'list_programs', 'category': 'all'})
+    helper.add_item('Kaikki ohjelmat', params={'action': 'list_programs'})
     helper.add_item('Kategoriat', params={'action': 'list_categories'})
     helper.add_item('Live TV', params={'action': 'livetv'})
     helper.add_item('Oma kanava', params={'action': 'favorites'})
@@ -26,7 +26,8 @@ def list_programs(category=None):
                 title = program['title'].encode('utf-8')
                 params = {
                     'action': 'list_videos_or_subcats',
-                    'program_id': program['id']
+                    'program_id': program['id'],
+                    'subcats': json.dumps(program['subs'])
                 }
 
                 helper.add_item(title, params)
@@ -34,7 +35,8 @@ def list_programs(category=None):
                 title = program['title'].encode('utf-8')
                 params = {
                     'action': 'list_videos_or_subcats',
-                    'program_id': program['id']
+                    'program_id': program['id'],
+                    'subcats': json.dumps(program['subs'])
                 }
 
                 helper.add_item(title, params)
@@ -54,39 +56,37 @@ def list_categories():
 def list_favorites():
     favorites = helper.k.get_favorites()
     for favorite in favorites['favorites']:
-        #Get names of the programs
-        title = helper.k.get_program_name_by_id(favorite['programCategoryId'])
+        #Get program data
+        program_data = helper.k.get_program_data_by_id(favorite['programCategoryId'])
         params = {
             'action': 'list_videos_or_subcats',
-            'program_id': favorite['programCategoryId']
+            'program_id': favorite['programCategoryId'],
+            'subcats': json.dumps(program_data['subs'])
         }
 
-        helper.add_item(title, params)
+        helper.add_item(program_data['title'], params)
     helper.eod()
 
-def list_videos_or_subcats(program_id):
-    subcats = helper.k.get_subcats(program_id)
-    if subcats['numberOfHits'] > 1:
+def list_videos_or_subcats(program_id, subcats):
+    if json.loads(subcats):
         list_subcats(program_id, subcats)
     else:
         list_videos(program_id=program_id)
 
 def list_subcats(program_id, subcats):
-    for subcat in subcats['category']:
-        #Get amount of videos from subcategory for hiding them if category is empty (maybe there's better way to check this, this method is kinda slow)
-        videos = helper.k.get_videos(program_id, subcat['@id'])
+    for subcat in json.loads(subcats):
         #List only subcategories where is more than 0 videos
-        if videos['numberOfHits'] > 0:
+        if subcat['count'] > 0:
             title = subcat['title']
             params = {
                 'action': 'list_videos',
                 'program_id': program_id,
-                'subcat_id': subcat['@id']
+                'subcat_id': subcat['id']
             }
             helper.add_item(title, params)
     helper.eod()
 
-def list_videos(program_id=None, subcat_id=None, search_query=None, series_data=None):
+def list_videos(program_id=None, subcat_id=None, search_query=None):
     if program_id or subcat_id:
         videos_data = helper.k.get_videos(program_id, subcat_id)
         if videos_data['numberOfHits'] > 1:
@@ -169,10 +169,10 @@ def router(paramstring):
             helper.reset_credentials()
     elif 'action' in params:
         if params['action'] == 'list_programs':
-            if params['category'] == 'all':
-                list_programs()
-            else:
+            if 'category' in params.keys():
                 list_programs(category=params['category'])
+            else:
+                list_programs()
         elif params['action'] == 'list_categories':
             list_categories()
         elif params['action'] == 'favorites':
@@ -180,7 +180,7 @@ def router(paramstring):
         elif params['action'] == 'livetv':
             list_channels()
         elif params['action'] == 'list_videos_or_subcats':
-            list_videos_or_subcats(params['program_id'])
+            list_videos_or_subcats(program_id=params['program_id'], subcats=params['subcats'])
         elif params['action'] == 'list_videos':
             list_videos(program_id=params['program_id'], subcat_id=params['subcat_id'])
         elif params['action'] == 'play':

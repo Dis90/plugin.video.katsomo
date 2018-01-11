@@ -117,7 +117,6 @@ class Katsomo(object):
         return json.loads(data)['assets']
 
     def get_programs(self):
-    
         url = 'https://static.katsomo.fi/cms_prod/all-programs-subcats.json'
 
         data = json.loads(self.make_request(url, 'get'))['categories']
@@ -129,12 +128,6 @@ class Katsomo(object):
         data = json.loads(self.make_request(url, 'get'))
         return data
 
-    def get_subcats(self, program_id):
-        url = 'https://api.katsomo.fi/api/web/search/categories/{0}.json'.format(program_id)
-
-        data = json.loads(self.make_request(url, 'get'))['categories']
-        return data
-
     def get_videos(self, program_id, subcat_id):
         if subcat_id:
             url = 'https://api.katsomo.fi/api/web/search/categories/{0}/assets.json'.format(subcat_id)
@@ -144,15 +137,14 @@ class Katsomo(object):
         data = json.loads(self.make_request(url, 'get'))['assets']
         return data
 
-    def get_program_name_by_id(self, program_id):
+    def get_program_data_by_id(self, program_id):
         url = 'https://static.katsomo.fi/cms_prod/all-programs-subcats.json'
 
         data = json.loads(self.make_request(url, 'get'))['categories']
 
         for program in data:
             if program['id'] == program_id:
-                title = program['title'].encode('utf-8')
-                return title
+                return program
 
     def get_program_fanart(self, program_id):
         url = 'https://static.katsomo.fi/cms_prod/series/{0}.json'.format(program_id)
