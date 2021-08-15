@@ -137,7 +137,7 @@ class KodiHelper(object):
         stream = self.k.get_stream(video_id)
 
         playitem = xbmcgui.ListItem(path=stream['mpd_url'])
-        playitem.setProperty('inputstreamaddon', 'inputstream.adaptive')
+        playitem.setProperty('inputstream', 'inputstream.adaptive')
         playitem.setProperty('inputstream.adaptive.manifest_type', 'mpd')
 
         if stream['drm_protected']:
