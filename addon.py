@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from urlparse import parse_qsl
+from urllib.parse import parse_qsl
 import json
 
 from resources.lib.kodihelper import KodiHelper
@@ -169,7 +169,7 @@ def router(paramstring):
             helper.reset_credentials()
     elif 'action' in params:
         if params['action'] == 'list_programs':
-            if 'category' in params.keys():
+            if 'category' in list(params.keys()):
                 list_programs(category=params['category'])
             else:
                 list_programs()

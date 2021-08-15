@@ -5,6 +5,6 @@ MTV Katsomo addon for Kodi
 This is completely unofficial addon for MTV Katsomo.
 
 # Prerequisites
-- Kodi 17.4
+- Kodi 19
 - Inputstream.adaptive >=v2.0.4
 - Libwidevine

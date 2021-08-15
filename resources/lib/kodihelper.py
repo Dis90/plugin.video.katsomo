@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import os
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import re
 
-from katsomo import Katsomo
+from .katsomo import Katsomo
 
 import xbmc
 import xbmcvfs
@@ -121,7 +121,7 @@ class KodiHelper(object):
         if content:
             xbmcplugin.setContent(self.handle, content)
 
-        recursive_url = self.base_url + '?' + urllib.urlencode(params)
+        recursive_url = self.base_url + '?' + urllib.parse.urlencode(params)
 
         if items is False:
             xbmcplugin.addDirectoryItem(self.handle, recursive_url, listitem, folder)
@@ -137,7 +137,7 @@ class KodiHelper(object):
         stream = self.k.get_stream(video_id)
 
         playitem = xbmcgui.ListItem(path=stream['mpd_url'])
-        playitem.setProperty('inputstreamaddon', 'inputstream.adaptive')
+        playitem.setProperty('inputstream', 'inputstream.adaptive')
         playitem.setProperty('inputstream.adaptive.manifest_type', 'mpd')
 
         if stream['drm_protected']:

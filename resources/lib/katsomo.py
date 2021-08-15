@@ -5,7 +5,7 @@ A Kodi-agnostic library for Katsomo
 import os
 import json
 import codecs
-import cookielib
+import http.cookiejar
 import time
 import xml.etree.ElementTree as ET
 from datetime import datetime
@@ -18,7 +18,7 @@ class Katsomo(object):
         self.debug = debug
         self.http_session = requests.Session()
         self.settings_folder = settings_folder
-        self.cookie_jar = cookielib.LWPCookieJar(os.path.join(self.settings_folder, 'cookie_file'))
+        self.cookie_jar = http.cookiejar.LWPCookieJar(os.path.join(self.settings_folder, 'cookie_file'))
         try:
             self.cookie_jar.load(ignore_discard=True, ignore_expires=True)
         except IOError:
@@ -35,12 +35,12 @@ class Katsomo(object):
     def log(self, string):
         if self.debug:
             try:
-                print '[Katsomo]: %s' % string
+                print('[Katsomo]: %s' % string)
             except UnicodeEncodeError:
                 # we can't anticipate everything in unicode they might throw at
                 # us, but we can handle a simple BOM
-                bom = unicode(codecs.BOM_UTF8, 'utf8')
-                print '[Katsomo]: %s' % string.replace(bom, '')
+                bom = str(codecs.BOM_UTF8, 'utf8')
+                print('[Katsomo]: %s' % string.replace(bom, ''))
             except:
                 pass
 
@@ -75,12 +75,12 @@ class Katsomo(object):
         try:
             error = json.loads(response)
             if isinstance(error, dict):
-                if 'error' in error.keys():
-                    if 'message' in error['error'].keys():
+                if 'error' in list(error.keys()):
+                    if 'message' in list(error['error'].keys()):
                         raise self.KatsomoError(error['error']['message'])
-                    elif 'code' in error['error'].keys():
+                    elif 'code' in list(error['error'].keys()):
                         raise self.KatsomoError(error['error']['code'])
-                if 'response' in error.keys(): # Response is not always error but we need this to check if login is OK
+                if 'response' in list(error.keys()): # Response is not always error but we need this to check if login is OK
                     if error['response']['code'] == 'AUTHENTICATION_FAILED':
                         raise self.KatsomoError(error['response']['code'])
             elif isinstance(error, str):
