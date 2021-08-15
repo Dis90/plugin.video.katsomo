@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import os
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import re
 
-from katsomo import Katsomo
+from .katsomo import Katsomo
 
 import xbmc
 import xbmcvfs
@@ -121,7 +121,7 @@ class KodiHelper(object):
         if content:
             xbmcplugin.setContent(self.handle, content)
 
-        recursive_url = self.base_url + '?' + urllib.urlencode(params)
+        recursive_url = self.base_url + '?' + urllib.parse.urlencode(params)
 
         if items is False:
             xbmcplugin.addDirectoryItem(self.handle, recursive_url, listitem, folder)
